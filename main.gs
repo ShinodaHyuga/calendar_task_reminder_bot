@@ -8,9 +8,9 @@ function seededRandom(seed) {
   return x - Math.floor(x);
 }
 
-function getMessagesFromSpreadsheet() {
+function getMessagesFromSpreadsheet(col) {
   const sheet = SpreadsheetApp.openByUrl(spreadsheet_url).getActiveSheet();
-  const messages_ = sheet.getRange("A:A").getValues(); // メッセージをA列に記述しておく
+  const messages_ = sheet.getRange(col).getValues(); // メッセージをA, B列に記述しておく
   const messages = messages_.flat().filter(Boolean);
   return messages;
 }
@@ -54,24 +54,25 @@ function getGoogleCalendar() {
   const today = new Date();
   const myCalendar = CalendarApp.getCalendarById(calendar_id);
   const myEvents = myCalendar.getEventsForDay(today);
-  const randomMessage = getRandomMessage(getMessagesFromSpreadsheet(), today);
+  const message1 = getRandomMessage(getMessagesFromSpreadsheet("A:A"), today);  // タスクがない時
+  const message2 = getRandomMessage(getMessagesFromSpreadsheet("B:B"), today);  // タスクがある時（文頭のセリフ）
+  const message3 = getRandomMessage(getMessagesFromSpreadsheet("C:C"), today);  // タスクがある時（文末のセリフ）
 
   let message;
 
   if (myEvents.length === 0) {
-    message = `今日までタスクはないよ!\n${randomMessage}`;
+    message = message1;
   } else {
-    const taskCount = myEvents.length;
-    message = `まだ${taskCount}つ${taskCount > 1 ? "も" : ""}タスクが残っているよ!\n\n`;
+    message = `${message2}\n\n`;
     
     message += myEvents.map((event, index) => {
       const deadlineTime = Utilities.formatDate(event.getStartTime(), "JST", "HH:mm") === "00:00" ? "今日" : Utilities.formatDate(event.getStartTime(), "JST", "HH:mm");
       const title = event.getTitle().replace(/<[^>]*>/g, "");
       const description = convertHTMLToText(event.getDescription());
-      return `${index > 0 ? "\n-----------------\n" : ""}✅${title}\n${description}\n${deadlineTime}までだからね`;
+      return `${index > 0 ? "\n-----------------\n" : ""}✅${title}\n${description}\n${deadlineTime}までだからね♡`;
     }).join("");
+    message += `\n\n${message3}`;
   }
-
   postMessage(message);
 }
 
