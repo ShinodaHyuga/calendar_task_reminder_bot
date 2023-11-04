@@ -1,10 +1,29 @@
-const access_token = "";  // LINE Messaging API: チャンネルアクセストークン
-const user_id = "";       // LINEユーザーID
-const calendar_id = "";   // GoogleカレンダーID
+const access_token = "";    // LINE Messaging API: チャンネルアクセストークン
+const user_id = "";         // LINE ユーザーID
+const calendar_id = "";     // Google カレンダーID
+const spreadsheet_url = ""; // スプレッドシートのURL
 
 function seededRandom(seed) {
   var x = Math.sin(seed) * 10000;
   return x - Math.floor(x);
+}
+
+function getMessagesFromSpreadsheet() {
+  const sheet = SpreadsheetApp.openByUrl(spreadsheet_url).getActiveSheet();
+  const messages_ = sheet.getRange("A:A").getValues(); // メッセージをA列に記述しておく
+
+  // messages_をmessagesにコピー
+  let messages = messages_.flat();
+  messages = messages.filter(Boolean);
+
+  return messages;
+}
+
+function getRandomMessage(messages, today) {
+  const seed = today.getTime();  // 現在時刻をseedとして使用
+  const randomIndex = Math.floor(seededRandom(seed) * messages.length);
+  const message = messages[randomIndex];
+  return message
 }
 
 function convertHTMLToText(html) {
@@ -38,38 +57,12 @@ function convertHTMLToText(html) {
 
 function getGoogleCalendar() {
   const today = new Date();
-  const seed = today.getTime();  // 現在時刻をseedとして使用
   const myCalendar = CalendarApp.getCalendarById(calendar_id);
   const myEvents = myCalendar.getEventsForDay(today);
-  let message = "";
-
-  // タスクが残っていなかった時のランダムメッセージ
-  const randomMessages = [
-    "おつかれさま！今日も頑張ったね！ 💪",
-    "おつかれさまー！君の努力に感心だよ！ 😊",
-    "おつかれさま☆君の一生懸命な姿が素敵だよ！ 🌟",
-    "おつかれ！いつも君の頑張りに刺激を受けてるよ！ 💫",
-    "おつかれさまっ！君のエネルギーに元気もらってるよ！ 🎉",
-    "お疲れ様～！君の笑顔が最高だね！ 😄",
-    "お疲れさま♪君のやる気にあこがれてるよ！ 🌸",
-    "おつかれ！君のポジティブさは感染力抜群だよ！ 🌞",
-    "おつかれさまっ！君の友達でいられて嬉しいな！ 😁",
-    "おつかれさまっす！君の一生懸命な態度が尊敬だよ！ 🙌",
-    "お疲れ様！君の頑張りには本当に感謝しています！ 🌼",
-    "お疲れ様っ！君の努力が明るい未来を作り出しているよ！ 🌠",
-    "お疲れさまー！君の一生懸命さはみんなに元気を与えているよ！ 💖",
-    "おつかれさま！君のパフォーマンスはいつも素晴らしい！ 🌈",
-    "お疲れ様☆君のポジティブなエネルギーが最高だね！ 🚀",
-    "おつかれ！君の仕事ぶりは絶えず驚かせてくれるよ！ 🎈",
-    "おつかれさま♪君の笑顔は最高の癒しだよ！ 😇",
-    "お疲れ！君の一生懸命さに感動しています！ 🌻",
-    "おつかれさま☆君の力強い姿勢は尊敬に値するよ！ 💪",
-    "お疲れ様！君との時間はいつも楽しいよ！ 😄"
-  ];
+  const randomMessage = getRandomMessage(getMessagesFromSpreadsheet(), today);
 
   if (myEvents.length === 0) {
-    message = "今日までのタスクはないよ!\n";
-    message += `${randomMessages[Math.floor(seededRandom(seed) * randomMessages.length)]}`;
+    message = `今日までタスクはないよ!\n${randomMessage}`;
   } else {
     if (myEvents.length === 1) {
       message = `まだ${myEvents.length}つだけタスクが残っているよ!\n\n`;

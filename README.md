@@ -10,21 +10,29 @@ LINE Devとかの使い方は省略します。
 
 ## トークンやらIDやらの取得方法
 
-### 1. access_token
+### 1. `access_token`
 
 - LINE Developers
 - トップ > {ユーザ名} > {BOT名} > Messaging API設定の**チャネルアクセストークン**
 
-### 2. user_id
+### 2. `user_id`
 
 - LINE
 - 設定 > **ID**
 
-### 3. calendar_id
+### 3. `calendar_id`
 
 - Google Calendar
 - 設定 > カレンダーの統合 > **カレンダーID**
 
-## TODO
+### 4. `spreadsheet_url`
 
-- データをjsonから引っ張れるようにする
+- Google Sheets
+- 共有 > リンクをコピー
+
+## バージョン履歴
+
+- Ver. 1.0
+  - 初期リリース
+- Ver. 1.1
+  - メッセージをスプレッドシートから読み取れるように修正
