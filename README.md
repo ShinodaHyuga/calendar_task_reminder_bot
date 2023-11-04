@@ -10,15 +10,8 @@ LINE Devとかの使い方は省略します。
 
 ### 実行例
 
-<div style="display: flex;">
-    <div style="flex: 1; padding: 5px;">
-        <img src="./result/calendar.png" style="max-width: 100%; max-height: 100%;">
-    </div>
-    <div style="flex: 1; padding: 5px;">
-        <img src="./result/line.png" style="max-width: 60%; max-height: 100%;">
-    </div>
-</div>
-
+![Googleカレンダー](https://github.com/ShinodaHyuga/calendar_task_reminder_bot/blob/images/calendar.png)
+![LINE](https://github.com/ShinodaHyuga/calendar_task_reminder_bot/blob/images/line.png)
 
 ## トークンやらIDやらの取得方法
 
