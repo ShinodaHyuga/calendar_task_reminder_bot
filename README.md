@@ -8,6 +8,15 @@ LINE Messaging API、Googleカレンダー、およびGoogle Apps Script（GAS�
 
 LINE Devとかの使い方は省略します。
 
+### 実行例
+
+<table>
+    <tr>
+        <td><img src="./result/calendar.png" width="80%"></td>
+        <td><img src="./result/line.png" width="100%"></td>
+    </tr>
+</table>
+
 ## トークンやらIDやらの取得方法
 
 ### 1. `access_token`
