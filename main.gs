@@ -11,30 +11,25 @@ function seededRandom(seed) {
 function getMessagesFromSpreadsheet() {
   const sheet = SpreadsheetApp.openByUrl(spreadsheet_url).getActiveSheet();
   const messages_ = sheet.getRange("A:A").getValues(); // メッセージをA列に記述しておく
-
-  // messages_をmessagesにコピー
-  let messages = messages_.flat();
-  messages = messages.filter(Boolean);
-
+  const messages = messages_.flat().filter(Boolean);
   return messages;
 }
 
 function getRandomMessage(messages, today) {
   const seed = today.getTime();  // 現在時刻をseedとして使用
   const randomIndex = Math.floor(seededRandom(seed) * messages.length);
-  const message = messages[randomIndex];
-  return message
+  return messages[randomIndex];
 }
 
 function convertHTMLToText(html) {
   // <br>を\nに変換
-  html = html.replace(/<br>/g, '\n');
+  html = html.replace(/<br>/g, "\n");
   // <b>hoge</b>をhogeに変換
-  html = html.replace(/<b>(.*?)<\/b>/g, '$1');
+  html = html.replace(/<b>(.*?)<\/b>/g, "$1");
   // <i>hoge</i>をhogeに変換
-  html = html.replace(/<i>(.*?)<\/i>/g, '$1');
+  html = html.replace(/<i>(.*?)<\/i>/g, "$1");
   // <u>hoge</u>をhogeに変換
-  html = html.replace(/<u>(.*?)<\/u>/g, '$1');
+  html = html.replace(/<u>(.*?)<\/u>/g, "$1");
   // <ol><li>hoge</li><li>foo</li></ol>を[i]. hoge\n[i+1]. foo\nに変換（[i]は連番）
   let counter = 1;
   html = html.replace(/<ol>(.*?)<\/ol>/g, function(match, list) {
@@ -46,11 +41,11 @@ function convertHTMLToText(html) {
       counter += 1;
       return newItem;
     });
-    return items.join('\n')+'\n';
+    return items.join("\n")+"\n";
   });
   // <ul><li>hoge</li><li>foo</li></ul>を- hoge\n- foo\nに変換
   html = html.replace(/<ul>(.*?)<\/ul>/g, function(match, list) {
-    return list.replace(/<li>(.*?)<\/li>/g, '- $1\n');
+    return list.replace(/<li>(.*?)<\/li>/g, "- $1\n");
   });
   return html;
 }
@@ -61,37 +56,23 @@ function getGoogleCalendar() {
   const myEvents = myCalendar.getEventsForDay(today);
   const randomMessage = getRandomMessage(getMessagesFromSpreadsheet(), today);
 
+  let message;
+
   if (myEvents.length === 0) {
     message = `今日までタスクはないよ!\n${randomMessage}`;
   } else {
-    if (myEvents.length === 1) {
-      message = `まだ${myEvents.length}つだけタスクが残っているよ!\n\n`;
-    } else if (myEvents.length === 2) {
-      message = `まだ${myEvents.length}つのタスクが残っているよ!\n\n`;
-    } else {
-      message = `まだ${myEvents.length}つもタスクが残っているよ!\n\n`;
-    }
-    let firstEvent = true; // 最初のタスクの区切り線を追加するためのフラグ
-    myEvents.forEach(function (event) {
-      let deadlineTime = Utilities.formatDate(event.getStartTime(), "JST", "HH:mm");
-      if (deadlineTime === "00:00") {
-        deadlineTime = "今日";
-      }
-      if (event.getTitle()) {
-        const title = event.getTitle().replace(/<[^>]*>/g, ''); // HTMLタグを削除
-        const description = convertHTMLToText(event.getDescription());
-
-        if (!firstEvent) {
-          message += "\n-----------------\n"; // 区切り線を追加
-        }
-        message += `✅${title}\n${description}`;
-        message += `\n${deadlineTime}までだからね`;
-        firstEvent = false;
-      }
-    });
+    const taskCount = myEvents.length;
+    message = `まだ${taskCount}つ${taskCount > 1 ? "も" : ""}タスクが残っているよ!\n\n`;
+    
+    message += myEvents.map((event, index) => {
+      const deadlineTime = Utilities.formatDate(event.getStartTime(), "JST", "HH:mm") === "00:00" ? "今日" : Utilities.formatDate(event.getStartTime(), "JST", "HH:mm");
+      const title = event.getTitle().replace(/<[^>]*>/g, "");
+      const description = convertHTMLToText(event.getDescription());
+      return `${index > 0 ? "\n-----------------\n" : ""}✅${title}\n${description}\n${deadlineTime}までだからね`;
+    }).join("");
   }
 
-  return postMessage(message);
+  postMessage(message);
 }
 
 // LINEにメッセージを送信するためのメソッド
