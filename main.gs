@@ -70,7 +70,6 @@ function getGoogleCalendar() {
   if (myEvents.length === 0) {
     message = "今日までのタスクはないよ!\n";
     message += `${randomMessages[Math.floor(seededRandom(seed) * randomMessages.length)]}`;
-    Logger.log(today.getTime());
   } else {
     if (myEvents.length === 1) {
       message = `まだ${myEvents.length}つだけタスクが残っているよ!\n\n`;
